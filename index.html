@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="rus">
+<head>
+	<meta charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="/css/auth.css">
+	<script type="text/javascript" src="/js/jquery-3.0.0.min.js"></script>
+</head>
+<body>
+<div id="wrapper">
+	<form id="signin" method="POST">
+		<input type="text" id="user" name="user" placeholder="e-mail,username,number" value="USER1">
+		<input type="password" id="pass" name="pass" placeholder="password" value="s2315">
+		<button type="submit" id="subm" name="submit">&#xf0da;</button>
+	</form>
+	<div class="ssil"><a href="/html/reg.html">Регистрация</a></div>
+	<script src="https://cdn.jsdelivr.net/jquery.maskedinput/1.4.1/jquery.maskedinput.min.js"></script>
+	<script type="text/javascript">
+			$('#user').on('input', function() {
+					if ($('#user').val().search(/^(\+{1}7{1}|8{1})$/) != -1) {
+						$(this).css("color", "white");
+						$("#subm").prop('disabled', true);
+						   $('input[name="user"]').mask(`${$('#user').val()} 999 999-99-99`);
+					}
+					else if ($('#user').val().search(/^[a-zA-Z]{1,}[a-zA-Z0-9]{1,30}@{1}[a-zA-Z0-9]{1,30}\.{1}[a-z]{2,4}$|^[a-zA-Z]{1,}[a-zA-Z0-9]{1,30}[^/[\]\-=\+\*&\^%\$#@!\s,~`";:'<>]*$/) != -1) {
+						$(this).css("color", "white");
+						$("#subm").prop('disabled', false);
+					}
+					else {
+						$(this).css("color", "red");
+						$("#subm").prop('disabled', true);
+					}
+					});
+			$('#pass').on('input', function() {
+					$("#subm").prop('disabled', false);
+					if ($('#pass').val().search(/^\w*[^[\]\-=\+\&\^%\$#@!\s,~`";:'<>.]*$/) != -1) {
+						   $(this).css("color", "white");
+						   $("#subm").prop('disabled', false);
+					}
+					else {
+						$(this).css("color", "red");
+						$("#subm").prop('disabled', true);
+					}
+					});
+			$('#user').dblclick(function() {$('input[name="user"]').unmask();
+				$('#user').val('');
+		});
+			$('#signin').submit(function(e) {
+				if ($('#user').val() == "" || $('#pass').val() == "") {
+					$("#subm").prop('disabled', true);
+					var d = document.createElement('div');
+					d.className = "error_block";
+					$(".error_block").css("color", "red");
+					d.appendChild(document.createTextNode('Заполните логин и пароль'));
+					document.body.appendChild(d);
+					setTimeout(function() { $('.error_block').remove(); }, 1050);
+				}
+				else {
+				e.preventDefault();
+				$.ajax({
+					type: "POST",
+					url: "/php/auth.php",
+					data: $(this).serialize(), 
+					success: function(response) {
+						var jsonData = JSON.parse(response);
+						if (jsonData.success == "0") {
+							var d = document.createElement('div');
+								d.className = "error_block";
+								$(".error_block").css("color", "red");
+								d.appendChild(document.createTextNode('Неверный логин или пароль'));
+								document.body.appendChild(d);
+								$('.error_block').delay(1400).fadeOut(300);
+						}
+						else if (jsonData.success == "1") {
+							location.href = "/php/suit.php";
+						}
+						else if (jsonData.success == "2") {
+							$("#user").prop('disabled', true);
+							$("#pass").prop('disabled', true);
+							$("#subm").prop('disabled', true);
+							setTimeout(function() {$("#user").prop('disabled', false);
+												   $("#pass").prop('disabled', false);
+												   $("#subm").prop('disabled', false);
+												}, 60000);
+							$('.error_block').remove();
+							var d = document.createElement('div');
+								d.className = "error_block";
+								document.body.appendChild(d);
+							var index = 60;
+							var timer = setInterval(function(){$(".error_block").css('display', 'block');
+								$(".error_block").html();
+								document.getElementsByClassName('error_block')[0].innerHTML = `Повторите через: ${--index} секунд`;}, 1000);
+							setTimeout(function() {clearInterval(timer);
+												   $('.error_block').remove();}, 60000);
+						}
+					}
+				});
+			}
+			});
+	</script>
+	<style>
+		.error_block {
+			position:relative;
+			left:575px;
+			top: 213px;
+			width: 190px;
+			height: 17px;
+			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+			font-size: 14px;
+			text-align: center;
+			color: red;
+		}
+	</style>
+</div>
+</body>

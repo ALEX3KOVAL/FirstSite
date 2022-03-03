@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="rus">
+<head>
+	<meta charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="/css/auth.css">
+	<script type="text/javascript" src="/js/jquery-3.0.0.min.js"></script>
+</head>
+<body>
+<div id="wrapper">
+	<form id="signin" method="POST">
+		<input type="text" id="user" name="user" placeholder="e-mail,username,number">
+		<input type="password" id="pass" name="pass" placeholder="password">
+		<button type="submit" id="subm" name="submit">&#xf0da;</button>
+	</form>
+	<div class="ssil"><a href="/index.html">Войти</a></div>
+	<script src="https://cdn.jsdelivr.net/jquery.maskedinput/1.4.1/jquery.maskedinput.min.js"></script>
+	<script type="text/javascript">
+			$('#user').on('input', function() {
+					if ($('#user').val().search(/^(\+{1}7{1}|8{1})$/) != -1) {
+						$(this).css("color", "white");
+						$("#subm").prop('disabled', true);
+						   $('input[name="user"]').mask(`${$('#user').val()} 999 999-99-99`);
+					}
+					else if ($('#user').val().search(/^[a-zA-Z]{1,}[a-zA-Z0-9]{1,30}@{1}[a-zA-Z0-9]{1,30}\.{1}[a-z]{2,4}$|^[a-zA-Z]{1,}[a-zA-Z0-9]{1,30}[^/[\]\-=\+\*&\^%\$#@!\s,~`";:'<>]*$/) != -1) {
+						$(this).css("color", "white");
+						$("#subm").prop('disabled', false);
+					}
+					else {
+						$(this).css("color", "red");
+						$("#subm").prop('disabled', true);
+					}
+					});
+			$('#pass').on('input', function() {
+					$("#subm").prop('disabled', false);
+					if ($('#pass').val().search(/^\w*[^[\]\-=\+\&\^%\$#@!\s,~`";:'<>.]*$/) != -1) {
+						   $(this).css("color", "white");
+						   $("#subm").prop('disabled', false);
+					}
+					else {
+						$(this).css("color", "red");
+						$("#subm").prop('disabled', true);
+					}
+					});
+			$('#user').dblclick(function() {$('input[name="user"]').unmask();
+				$('#user').val('');
+		});
+			$('#signin').submit(function(e) {
+				if ($('#user').val() == "" || $('#pass').val() == "") {
+					$("#subm").prop('disabled', true);
+					var d = document.createElement('div');
+					d.className = "error_block";
+					$(".error_block").css("color", "red");
+					d.appendChild(document.createTextNode('Заполните логин и пароль'));
+					document.body.appendChild(d);
+					setTimeout(function() { $('.error_block').remove(); }, 1050);
+				}
+				else {
+				e.preventDefault();
+				$.ajax({
+					type: "POST",
+					url: "/php/reg.php",
+					data: $(this).serialize(), 
+					success: function(response) {
+						if (response == "1") {
+							var d = document.createElement('div');
+								d.className = "error_block";
+								$(".error_block").css("color", "green");
+								d.appendChild(document.createTextNode('Регистрация прошла успешно'));
+								document.body.appendChild(d);
+								setTimeout(function() { $('.error_block').remove(); }, 1050);
+						}
+						else {
+							var d = document.createElement('div');
+								d.className = "error_block";
+								$(".error_block").css("color", "purple");
+								d.appendChild(document.createTextNode('Ошибка!'));
+								document.body.appendChild(d);
+								setTimeout(function() { $('.error_block').remove(); }, 1050);
+						}
+					}
+				});
+			}
+			});
+</script>
+	<style>
+		.error_block {
+			position:relative;
+			left:575px;
+			top: 213px;
+			width: 200px;
+			height: 17px;
+			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+			font-size: 14px;
+			text-align: center;
+			color: red;
+		}
+	</style>
+</div>
+</body>
