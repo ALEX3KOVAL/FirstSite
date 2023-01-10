@@ -1,2 +1,2 @@
-# FirstSuit
-My first suit on JS and PHP.
+# FirstSite
+My first site on JS and PHP.
